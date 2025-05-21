@@ -380,6 +380,7 @@ async def _async_build_address_schema_CA(
             {
                 vol.Required(
                     CONF_STATE,
+                    default="Province",
                 ): selector.SelectSelector(
                     selector.SelectSelectorConfig(
                         options=PROVINCES,
@@ -411,6 +412,7 @@ async def _async_build_address_schema_CA(
             {
                 vol.Required(
                     CONF_ZIP,
+                    default="Postal Code",
                 ): selector.TextSelector(selector.TextSelectorConfig()),
             }
         )
