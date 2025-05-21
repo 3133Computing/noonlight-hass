@@ -304,7 +304,7 @@ async def _async_build_address_schema_US(
             {
                 vol.Required(
                     CONF_ZIP,
-                    default="Postal Code",
+                    default=_get_default(CONF_ZIP),
                 ): selector.TextSelector(selector.TextSelectorConfig()),
             }
         )
@@ -396,7 +396,7 @@ async def _async_build_address_schema_CA(
             {
                 vol.Required(
                     CONF_STATE,
-                    default="Province",
+                    default=_get_default(CONF_STATE),
                 ): selector.SelectSelector(
                     selector.SelectSelectorConfig(
                         options=PROVINCES,
@@ -420,7 +420,7 @@ async def _async_build_address_schema_CA(
             {
                 vol.Required(
                     CONF_ZIP,
-                    default="Postal Code",
+                    default=_get_default(CONF_ZIP),
                 ): selector.TextSelector(selector.TextSelectorConfig()),
             }
         )
