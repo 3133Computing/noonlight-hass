@@ -266,7 +266,7 @@ async def _async_build_address_schema_US(
                     CONF_STATE,
                 ): selector.SelectSelector(
                     selector.SelectSelectorConfig(
-                        options=PROVINCES,
+                        options=STATES,
                         multiple=False,
                         custom_value=False,
                         mode=selector.SelectSelectorMode.DROPDOWN,
@@ -279,7 +279,7 @@ async def _async_build_address_schema_US(
             {
                 vol.Required(
                     CONF_STATE,
-                    default="Province",
+                    default=_get_default(CONF_STATE),
                 ): selector.SelectSelector(
                     selector.SelectSelectorConfig(
                         options=STATES,
@@ -375,71 +375,37 @@ async def _async_build_address_schema_CA(
                 ): selector.TextSelector(selector.TextSelectorConfig()),
             }
         )
-    if self._data.get(CONF_COUNTRY) == "US":
-        if _get_default(CONF_STATE) is None:
-            build_schema = build_schema.extend(
-                {
-                    vol.Required(
-                        CONF_STATE,
-                    ): selector.SelectSelector(
-                        selector.SelectSelectorConfig(
-                            options=STATES,
-                            multiple=False,
-                            custom_value=False,
-                            mode=selector.SelectSelectorMode.DROPDOWN,
-                        )
+    if _get_default(CONF_STATE) is None:
+        build_schema = build_schema.extend(
+            {
+                vol.Required(
+                    CONF_STATE,
+                ): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=PROVINCES,
+                        multiple=False,
+                        custom_value=False,
+                        mode=selector.SelectSelectorMode.DROPDOWN,
                     )
-                }
-            )
-        else:
-            build_schema = build_schema.extend(
-                {
-                    vol.Required(
-                        CONF_STATE,
-                        default=_get_default(CONF_STATE),
-                    ): selector.SelectSelector(
-                        selector.SelectSelectorConfig(
-                            options=STATES,
-                            multiple=False,
-                            custom_value=False,
-                            mode=selector.SelectSelectorMode.DROPDOWN,
-                        )
+                )
+            }
+        )
+    else:
+        build_schema = build_schema.extend(
+            {
+                vol.Required(
+                    CONF_STATE,
+                    default="Province",
+                ): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=PROVINCES,
+                        multiple=False,
+                        custom_value=False,
+                        mode=selector.SelectSelectorMode.DROPDOWN,
                     )
-                }
-            )
-    elif self._data.get(CONF_COUNTRY) == "CA":
-        if _get_default(CONF_STATE) is None:
-            build_schema = build_schema.extend(
-                {
-                    vol.Required(
-                        CONF_STATE,
-                    ): selector.SelectSelector(
-                        selector.SelectSelectorConfig(
-                            options=PROVINCES,
-                            multiple=False,
-                            custom_value=False,
-                            mode=selector.SelectSelectorMode.DROPDOWN,
-                        )
-                    )
-                }
-            )
-        else:
-            build_schema = build_schema.extend(
-                {
-                    vol.Required(
-                        CONF_STATE,
-                        default=_get_default(CONF_STATE),
-                    ): selector.SelectSelector(
-                        selector.SelectSelectorConfig(
-                            options=PROVINCES,
-                            multiple=False,
-                            custom_value=False,
-                            mode=selector.SelectSelectorMode.DROPDOWN,
-                        )
-                    )
-                }
-            )
-
+                )
+            }
+        )
     if _get_default(CONF_ZIP) is None:
         build_schema = build_schema.extend(
             {
@@ -453,7 +419,7 @@ async def _async_build_address_schema_CA(
             {
                 vol.Required(
                     CONF_ZIP,
-                    default=_get_default(CONF_ZIP),
+                    default="Postal Code",
                 ): selector.TextSelector(selector.TextSelectorConfig()),
             }
         )
