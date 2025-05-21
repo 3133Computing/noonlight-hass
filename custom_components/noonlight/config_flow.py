@@ -321,7 +321,8 @@ async def _async_build_address_schema_CA(
     def _get_default(key: str, fallback_default: Any = None) -> None:
         """Gets default value for key."""
         return user_input.get(key, default_dict.get(key, fallback_default))
-
+    CONF_STATE = "Province"
+    CONF_ZIP = "Postal Code"
     build_schema = vol.Schema({})
 
     if _get_default(CONF_ADDRESS_LINE1) is None:
@@ -380,7 +381,6 @@ async def _async_build_address_schema_CA(
             {
                 vol.Required(
                     CONF_STATE,
-                    default="Province",
                 ): selector.SelectSelector(
                     selector.SelectSelectorConfig(
                         options=PROVINCES,
@@ -412,7 +412,6 @@ async def _async_build_address_schema_CA(
             {
                 vol.Required(
                     CONF_ZIP,
-                    default="Postal Code",
                 ): selector.TextSelector(selector.TextSelectorConfig()),
             }
         )
