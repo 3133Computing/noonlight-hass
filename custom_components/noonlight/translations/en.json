@@ -23,7 +23,8 @@
           "address2": "Address 2",
           "city": "City",
           "state": "State",
-          "zip": "Zip"
+          "zip": "Zip",
+          "country": "Country"
         }
       },
       "latlong": {
@@ -54,7 +55,8 @@
           "address2": "Address 2",
           "city": "City",
           "state": "State",
-          "zip": "Zip"
+          "zip": "Zip",
+          "country": "Country"
         }
       },
       "reconfig_latlong": {

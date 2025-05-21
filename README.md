@@ -4,7 +4,7 @@ This is the [Noonlight](https://noonlight.com) integration for HomeAssistant.
 
 [Noonlight](https://noonlight.com) connects your smart home to local emergency services to help keep you safe in case of a break-in, fire, or medical emergency.
 
-### Noonlight service is currently only available in the United States
+### Noonlight service is currently only available in the United States & Canada
 
 ## How it Works
 
