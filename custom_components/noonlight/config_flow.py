@@ -31,9 +31,10 @@ LOCATION_MODE_LIST = [
     selector.SelectOptionDict(label="Use Latitude/Longitude", value="latlong"),
     selector.SelectOptionDict(label="Use Address", value="address"),
 ]
+
 COUNTRY_LIST = [
-    "CA",
-    "US",
+    selector.SelectOptionDict(label="Canada", value="CA"),
+    selector.SelectOptionDict(label="United States", value="US"),
 ]
 
 PROVINCES = [
@@ -141,6 +142,17 @@ async def _async_build_noonlight_schema(
                 default=_get_default(CONF_TOKEN_ENDPOINT),
             ): selector.TextSelector(selector.TextSelectorConfig()),
             vol.Required(
+                CONF_COUNTRY,
+                default=_get_default(CONF_COUNTRY),
+            ): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=COUNTRY_LIST,
+                    multiple=False,
+                    custom_value=False,
+                    mode=selector.SelectSelectorMode.LIST,
+                )
+            ),
+            vol.Required(
                 CONF_LOCATION_MODE,
                 default=_get_default(CONF_LOCATION_MODE),
             ): selector.SelectSelector(
@@ -183,7 +195,7 @@ async def _async_build_latlong_schema(
     return build_schema
 
 
-async def _async_build_address_schema(
+async def _async_build_address_schema_US(
     hass: HomeAssistant, user_input: list, default_dict: list
 ) -> Any:
     """Gets a schema using the default_dict as a backup."""
@@ -247,53 +259,7 @@ async def _async_build_address_schema(
                 ): selector.TextSelector(selector.TextSelectorConfig()),
             }
         )
-    if _get_default(CONF_COUNTRY) is None:
-        build_schema = build_schema.extend(
-            {
-                vol.Required(
-                    CONF_COUNTRY,
-                ): selector.SelectSelector(
-                    selector.SelectSelectorConfig(
-                        options=COUNTRY_LIST,
-                        multiple=False,
-                        custom_value=False,
-                        mode=selector.SelectSelectorMode.DROPDOWN,
-                    )
-                )
-            }
-        )
-    else:
-        build_schema = build_schema.extend(
-            {
-                vol.Optional(
-                    CONF_COUNTRY,
-                    default=_get_default(CONF_COUNTRY),
-                ): selector.SelectSelector(
-                    selector.SelectSelectorConfig(
-                        options=COUNTRY_LIST,
-                        multiple=False,
-                        custom_value=False,
-                        mode=selector.SelectSelectorMode.DROPDOWN,
-                    )
-                )
-            }
-        )
-    if _get_default(CONF_STATE) is None and CONF_COUNTRY == "US":
-        build_schema = build_schema.extend(
-            {
-                vol.Required(
-                    CONF_STATE,
-                ): selector.SelectSelector(
-                    selector.SelectSelectorConfig(
-                        options=STATES,
-                        multiple=False,
-                        custom_value=False,
-                        mode=selector.SelectSelectorMode.DROPDOWN,
-                    )
-                )
-            }
-        )
-    elif _get_default(CONF_STATE) is None and CONF_COUNTRY == "CA":
+    if _get_default(CONF_STATE) is None:
         build_schema = build_schema.extend(
             {
                 vol.Required(
@@ -311,9 +277,9 @@ async def _async_build_address_schema(
     else:
         build_schema = build_schema.extend(
             {
-                vol.Optional(
+                vol.Required(
                     CONF_STATE,
-                    default=_get_default(CONF_STATE),
+                    default="Province",
                 ): selector.SelectSelector(
                     selector.SelectSelectorConfig(
                         options=STATES,
@@ -324,6 +290,156 @@ async def _async_build_address_schema(
                 )
             }
         )
+    
+    if _get_default(CONF_ZIP) is None:
+        build_schema = build_schema.extend(
+            {
+                vol.Required(
+                    CONF_ZIP,
+                ): selector.TextSelector(selector.TextSelectorConfig()),
+            }
+        )
+    else:
+        build_schema = build_schema.extend(
+            {
+                vol.Required(
+                    CONF_ZIP,
+                    default="Postal Code",
+                ): selector.TextSelector(selector.TextSelectorConfig()),
+            }
+        )
+
+    return build_schema
+
+async def _async_build_address_schema_CA(
+    hass: HomeAssistant, user_input: list, default_dict: list
+) -> Any:
+    """Gets a schema using the default_dict as a backup."""
+    if user_input is None:
+        user_input = {}
+
+    def _get_default(key: str, fallback_default: Any = None) -> None:
+        """Gets default value for key."""
+        return user_input.get(key, default_dict.get(key, fallback_default))
+
+    build_schema = vol.Schema({})
+
+    if _get_default(CONF_ADDRESS_LINE1) is None:
+        build_schema = build_schema.extend(
+            {
+                vol.Required(
+                    CONF_ADDRESS_LINE1,
+                ): selector.TextSelector(selector.TextSelectorConfig()),
+            }
+        )
+    else:
+        build_schema = build_schema.extend(
+            {
+                vol.Required(
+                    CONF_ADDRESS_LINE1,
+                    default=_get_default(CONF_ADDRESS_LINE1),
+                ): selector.TextSelector(selector.TextSelectorConfig()),
+            }
+        )
+    if _get_default(CONF_ADDRESS_LINE2) is None:
+        build_schema = build_schema.extend(
+            {
+                vol.Optional(
+                    CONF_ADDRESS_LINE2,
+                ): selector.TextSelector(selector.TextSelectorConfig()),
+            }
+        )
+    else:
+        build_schema = build_schema.extend(
+            {
+                vol.Optional(
+                    CONF_ADDRESS_LINE2,
+                    default=_get_default(CONF_ADDRESS_LINE2),
+                ): selector.TextSelector(selector.TextSelectorConfig()),
+            }
+        )
+    if _get_default(CONF_CITY) is None:
+        build_schema = build_schema.extend(
+            {
+                vol.Required(
+                    CONF_CITY,
+                ): selector.TextSelector(selector.TextSelectorConfig()),
+            }
+        )
+    else:
+        build_schema = build_schema.extend(
+            {
+                vol.Required(
+                    CONF_CITY,
+                    default=_get_default(CONF_CITY),
+                ): selector.TextSelector(selector.TextSelectorConfig()),
+            }
+        )
+    if self._data.get(CONF_COUNTRY) == "US":
+        if _get_default(CONF_STATE) is None:
+            build_schema = build_schema.extend(
+                {
+                    vol.Required(
+                        CONF_STATE,
+                    ): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=STATES,
+                            multiple=False,
+                            custom_value=False,
+                            mode=selector.SelectSelectorMode.DROPDOWN,
+                        )
+                    )
+                }
+            )
+        else:
+            build_schema = build_schema.extend(
+                {
+                    vol.Required(
+                        CONF_STATE,
+                        default=_get_default(CONF_STATE),
+                    ): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=STATES,
+                            multiple=False,
+                            custom_value=False,
+                            mode=selector.SelectSelectorMode.DROPDOWN,
+                        )
+                    )
+                }
+            )
+    elif self._data.get(CONF_COUNTRY) == "CA":
+        if _get_default(CONF_STATE) is None:
+            build_schema = build_schema.extend(
+                {
+                    vol.Required(
+                        CONF_STATE,
+                    ): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=PROVINCES,
+                            multiple=False,
+                            custom_value=False,
+                            mode=selector.SelectSelectorMode.DROPDOWN,
+                        )
+                    )
+                }
+            )
+        else:
+            build_schema = build_schema.extend(
+                {
+                    vol.Required(
+                        CONF_STATE,
+                        default=_get_default(CONF_STATE),
+                    ): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=PROVINCES,
+                            multiple=False,
+                            custom_value=False,
+                            mode=selector.SelectSelectorMode.DROPDOWN,
+                        )
+                    )
+                }
+            )
+
     if _get_default(CONF_ZIP) is None:
         build_schema = build_schema.extend(
             {
@@ -343,7 +459,6 @@ async def _async_build_address_schema(
         )
 
     return build_schema
-
 
 class NoonlightConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
@@ -409,14 +524,22 @@ class NoonlightConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         # Defaults
         defaults = {}
-
-        return self.async_show_form(
-            step_id="address",
-            data_schema=await _async_build_address_schema(
-                self.hass, user_input, defaults
-            ),
-            errors=self._errors,
-        )
+        if self._data.get(CONF_COUNTRY) == "US":
+            return self.async_show_form(
+                step_id="address",
+                data_schema=await _async_build_address_schema_US(
+                    self.hass, user_input, defaults
+                ),
+                errors=self._errors,
+            )
+        elif self._data.get(CONF_COUNTRY) == "CA":
+            return self.async_show_form(
+                step_id="address",
+                data_schema=await _async_build_address_schema_CA(
+                    self.hass, user_input, defaults
+                ),
+                errors=self._errors,
+            )
 
     async def async_step_latlong(
         self, user_input: dict[str, Any] | None = None
@@ -513,13 +636,23 @@ class NoonlightConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             await self.hass.config_entries.async_reload(self._entry.entry_id)
             return self.async_abort(reason="reconfigure_successful")
 
-        return self.async_show_form(
-            step_id="reconfig_address",
-            data_schema=await _async_build_address_schema(
-                self.hass, user_input, self._data
-            ),
-            errors=self._errors,
-        )
+
+        if self._data.get(CONF_COUNTRY) == "US":
+            return self.async_show_form(
+                step_id="reconfig_address",
+                data_schema=await _async_build_address_schema_US(
+                    self.hass, user_input, self._data
+                ),
+                errors=self._errors,
+            )
+        elif self._data.get(CONF_COUNTRY) == "CA":
+            return self.async_show_form(
+                step_id="reconfig_address",
+                data_schema=await _async_build_address_schema_CA(
+                    self.hass, user_input, self._data
+                ),
+                errors=self._errors,
+            )
 
     async def async_step_reconfig_latlong(
         self, user_input: dict[str, Any] | None = None

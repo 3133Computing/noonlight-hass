@@ -14,6 +14,7 @@
           "secret": "Noonlight Secret",
           "api_endpoint": "Noonlight API Endpoint",
           "token_endpoint": "Token Endpoint",
+          "country": "Country",
           "location_mode": "Location Mode"        }
       },
       "address": {
